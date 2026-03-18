@@ -2,3 +2,5 @@ django
 gunicorn
 python-dotenv
 mysqlclient
+
+pip freeze > requirements.txt
