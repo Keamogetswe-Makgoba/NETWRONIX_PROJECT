@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Netwronix | Lab Selection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .bg-custom-blue { background-color: #1e3a8a; }
+        .text-custom-yellow { color: #facc15; }
+        .hover-card:hover { transform: translateY(-5px); transition: 0.3s; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <div class="bg-custom-blue p-8 text-center shadow-lg">
+        <h1 class="text-4xl font-black text-custom-yellow uppercase">Grade {{ grade }} Virtual Labs</h1>
+        <p class="text-white mt-2 opacity-80">Select a topic to begin your interactive simulation</p>
+    </div>
+
+    <div class="container mx-auto py-12 px-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            
+            {% if grade == '11' %}
+                <a href="{% url 'physics_simulations' grade='11' topic='vectors' %}" class="hover-card bg-white border-b-4 border-custom-blue p-6 rounded-2xl shadow-md">
+                    <span class="text-4xl mb-4 block">↗️</span>
+                    <h3 class="text-xl font-bold text-blue-900">Vectors Lab</h3>
+                    <p class="text-gray-600 text-sm mt-2">Work with components, magnitude, and direction.</p>
+                </a>
+
+                <a href="{% url 'physics_simulations' grade='11' topic='newton-laws' %}" class="hover-card bg-white border-b-4 border-custom-blue p-6 rounded-2xl shadow-md">
+                    <span class="text-4xl mb-4 block">🏎️</span>
+                    <h3 class="text-xl font-bold text-blue-900">Newton's Laws Lab</h3>
+                    <p class="text-gray-600 text-sm mt-2">Investigate force, mass, and acceleration.</p>
+                </a>
+
+                <a href="{% url 'physics_simulations' grade='11' topic='gravitation' %}" class="hover-card bg-white border-b-4 border-custom-blue p-6 rounded-2xl shadow-md">
+                    <span class="text-4xl mb-4 block">🌍</span>
+                    <h3 class="text-xl font-bold text-blue-900">Universal Gravitation</h3>
+                    <p class="text-gray-600 text-sm mt-2">Explore the forces between massive objects.</p>
+                </a>
+
+            {% elif grade == '12' %}
+                <a href="{% url 'physics_simulations' grade='12' topic='projectile-motion' %}" class="hover-card bg-white border-b-4 border-custom-yellow p-6 rounded-2xl shadow-md">
+                    <span class="text-4xl mb-4 block">🏹</span>
+                    <h3 class="text-xl font-bold text-blue-900">Vertical Projectile Motion</h3>
+                    <p class="text-gray-600 text-sm mt-2">Analyze velocity and displacement of falling objects.</p>
+                </a>
+
+                <a href="{% url 'physics_simulations' grade='12' topic='momentum' %}" class="hover-card bg-white border-b-4 border-custom-yellow p-6 rounded-2xl shadow-md">
+                    <span class="text-4xl mb-4 block">💥</span>
+                    <h3 class="text-xl font-bold text-blue-900">Momentum & Impulse</h3>
+                    <p class="text-gray-600 text-sm mt-2">Test collisions and conservation of momentum.</p>
+                </a>
+            {% endif %}
+
+        </div>
+
+        <div class="mt-12 text-center">
+            <a href="{% url 'dashboard_student' %}" class="text-blue-800 font-bold hover:underline">
+    ← Back to Grade {{ grade }} Dashboard
+</a>
+        </div>
+    </div>
+
+</body>
+</html>

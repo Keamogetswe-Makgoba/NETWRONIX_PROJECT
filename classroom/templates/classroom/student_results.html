@@ -1,0 +1,163 @@
+{% extends 'base.html' %} {% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="p-6 bg-gray-50 min-h-screen">
+  <div class="max-w-7xl mx-auto">
+    <div
+      class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4"
+    >
+      <div>
+        <h1 class="text-3xl font-bold text-blue-900">
+          Academic Performance Analytics
+        </h1>
+        <p class="text-gray-600 font-medium">
+          Reviewing physics learning trends and individual success.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a
+          href="{% url 'teacher_dashboard' %}"
+          class="flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition shadow-sm font-semibold"
+        >
+          <span class="mr-2">←</span> Back to Dashboard
+        </a>
+
+        <a
+          href="{% url 'clear_results' %}"
+          onclick="
+            return confirm(
+              'CRITICAL: This will permanently delete ALL student quiz records from the database. This cannot be undone. Proceed?',
+            );
+          "
+          class="flex items-center px-4 py-2 bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition shadow-sm font-semibold"
+        >
+          <span class="mr-2">🗑️</span> Clear All Results
+        </a>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+          Performance by Topic
+        </h3>
+        <canvas id="topicChart" height="200"></canvas>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+          Performance by Grade
+        </h3>
+        <canvas id="gradeChart" height="200"></canvas>
+      </div>
+    </div>
+
+    <div
+      class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+    >
+      <div
+        class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center"
+      >
+        <h3 class="text-xl font-bold text-gray-800">
+          Individual Learner Results
+        </h3>
+        <span
+          class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-bold"
+        >
+          Total Records: {{ results.count }}
+        </span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead
+            class="bg-gray-100 text-gray-600 uppercase text-xs font-semibold"
+          >
+            <tr>
+              <th class="px-6 py-4">Student Name</th>
+              <th class="px-6 py-4">Grade</th>
+              <th class="px-6 py-4">Topic</th>
+              <th class="px-6 py-4">Score (%)</th>
+              <th class="px-6 py-4">Date Taken</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            {% for r in results %}
+            <tr class="hover:bg-gray-50 transition">
+              <td class="px-6 py-4 font-medium text-gray-900">
+                {{ r.student.get_full_name|default:r.student.username }}
+              </td>
+              <td class="px-6 py-4 text-gray-600">Grade {{ r.grade }}</td>
+              <td class="px-6 py-4 uppercase text-sm font-bold text-blue-700">
+                {{ r.topic }}
+              </td>
+              <td class="px-6 py-4">
+                <span
+                  class="px-3 py-1 rounded-full text-sm font-bold {% if r.score < 50 %}bg-red-100 text-red-700{% elif r.score < 75 %}bg-yellow-100 text-yellow-700{% else %}bg-green-100 text-green-700{% endif %}"
+                >
+                  {{ r.score }}%
+                </span>
+              </td>
+              <td class="px-6 py-4 text-gray-500 text-sm">
+                {{ r.date_taken|date:"d M Y, H:i" }}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td
+                colspan="5"
+                class="px-6 py-20 text-center text-gray-500 italic"
+              >
+                <div class="text-4xl mb-4">📝</div>
+                No quiz results recorded yet.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const topicData = {{ topic_json|safe }};
+  const gradeData = {{ grade_json|safe }};
+
+  const ctxTopic = document.getElementById('topicChart').getContext('2d');
+  new Chart(ctxTopic, {
+      type: 'bar',
+      data: {
+          labels: topicData.map(d => (d.topic || 'General').toUpperCase()),
+          datasets: [{
+              label: 'Average Score %',
+              data: topicData.map(d => d.avg_score),
+              backgroundColor: topicData.map(d => d.avg_score < 50 ? '#ef4444' : '#3b82f6'),
+              borderRadius: 6
+          }]
+      },
+      options: {
+          responsive: true,
+          scales: { y: { beginAtZero: true, max: 100 } }
+      }
+  });
+
+  const ctxGrade = document.getElementById('gradeChart').getContext('2d');
+  new Chart(ctxGrade, {
+      type: 'doughnut',
+      data: {
+          labels: gradeData.map(d => 'Grade ' + d.grade),
+          datasets: [{
+              data: gradeData.map(d => d.student_count),
+              backgroundColor: ['#1e3a8a', '#facc15', '#10b981', '#6366f1'],
+              borderWidth: 2,
+              borderColor: '#ffffff'
+          }]
+      },
+      options: {
+          responsive: true,
+          plugins: { legend: { position: 'bottom' } }
+      }
+  });
+</script>
+{% endblock %}

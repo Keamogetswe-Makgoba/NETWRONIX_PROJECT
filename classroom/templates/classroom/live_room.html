@@ -1,0 +1,91 @@
+{% extends 'base.html' %} {% block content %}
+<script src="https://meet.jit.si/external_api.js"></script>
+
+<div class="bg-gray-900 min-h-screen p-4">
+  <div class="max-w-6xl mx-auto">
+    <div class="flex justify-between items-center mb-4 text-white">
+      <div>
+        <h1 class="text-2xl font-bold">{{ live_class.title }}</h1>
+        <p class="text-blue-400 font-semibold uppercase text-sm">
+          Physics: {{ live_class.topic }} | Grade {{ live_class.grade }}
+        </p>
+      </div>
+
+      {% if request.user.role == 'teacher' %}
+      <a
+        href="{% url 'end_live_class' meeting_id=room_name %}"
+        onclick="return confirm('End class for everyone?');"
+        class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-bold transition"
+      >
+        End Class
+      </a>
+      {% else %}
+      <a
+        href="{% url 'dashboard_student' %}"
+        class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-bold transition"
+      >
+        Leave Class
+      </a>
+      {% endif %}
+    </div>
+
+    <div
+      id="video-container"
+      class="w-full bg-black rounded-xl overflow-hidden shadow-2xl border border-gray-700"
+      style="height: 600px"
+    ></div>
+  </div>
+</div>
+
+<script>
+  const domain = "meet.jit.si";
+
+  const isTeacher = "{{ request.user.role }}".toLowerCase() === "teacher";
+
+  const options = {
+    roomName: "Netwronix_{{ room_name }}",
+    width: "100%",
+    height: "100%",
+    parentNode: document.querySelector("#video-container"),
+    userInfo: {
+      displayName: "{{ user_name }}",
+    },
+    configOverwrite: {
+      prejoinPageEnabled: false,
+      startWithAudioMuted: !isTeacher,
+      disableThirdPartyRequests: true,
+    },
+    interfaceConfigOverwrite: {
+      TOOLBAR_BUTTONS: [
+        "microphone",
+        "camera",
+        "closedcaptions",
+        "desktop",
+        "fullscreen",
+        "fodeviceselection",
+        "hangup",
+        "profile",
+        "chat",
+        "recording",
+        "raisehand",
+        "videoquality",
+        "filmstrip",
+        "tileview",
+        "mute-everyone",
+        "security",
+      ],
+      SHOW_JITSI_WATERMARK: false,
+    },
+  };
+
+  const api = new JitsiMeetExternalAPI(domain, options);
+
+  api.addEventListener("videoConferenceLeft", () => {
+    if (isTeacher) {
+      window.location.href = "{% url 'end_live_class' meeting_id=room_name %}";
+    } else {
+      window.location.href = "{% url 'dashboard_student' %}";
+    }
+  });
+</script>
+{% endblock %}

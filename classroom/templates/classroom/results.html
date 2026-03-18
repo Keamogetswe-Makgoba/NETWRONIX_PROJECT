@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="bg-gray-100 min-h-screen py-10">
+    <div class="container mx-auto px-4 max-w-3xl">
+        
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
+            <div class="bg-blue-900 p-8 text-center text-white">
+                <h1 class="text-3xl font-bold mb-2">Quiz Results</h1>
+                <p class="text-blue-200">Well done on completing the assessment!</p>
+            </div>
+            
+            <div class="p-8 text-center">
+                <div class="inline-block p-6 rounded-full bg-blue-50 mb-4">
+                    <span class="text-5xl font-black text-blue-900">{{ percentage }}%</span>
+                </div>
+                <p class="text-gray-600 text-lg">
+                    You scored <span class="font-bold text-gray-800">{{ score }}</span> out of <span class="font-bold text-gray-800">{{ total }}</span>
+                </p>
+            </div>
+        </div>
+
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Review Your Answers</h2>
+        <div class="space-y-4">
+            {% for item in results %}
+            <div class="bg-white p-6 rounded-xl shadow-sm border-l-8 {% if item.is_correct %}border-green-500{% else %}border-red-500{% endif %}">
+                <div class="flex justify-between items-start">
+                    <h3 class="font-bold text-gray-800 text-lg">{{ item.question }}</h3>
+                    {% if item.is_correct %}
+                        <span class="text-green-600 font-bold">✓ Correct</span>
+                    {% else %}
+                        <span class="text-red-600 font-bold">✗ Incorrect</span>
+                    {% endif %}
+                </div>
+                
+                <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
+                    <div class="p-3 rounded bg-gray-50">
+                        <span class="block text-gray-500 uppercase text-xs font-bold">Your Answer</span>
+                        <span class="font-mono text-lg {% if item.is_correct %}text-green-700{% else %}text-red-700{% endif %}">
+                            {{ item.your_answer }}
+                        </span>
+                    </div>
+                    <div class="p-3 rounded bg-green-50">
+                        <span class="block text-green-600 uppercase text-xs font-bold">Correct Answer</span>
+                        <span class="font-mono text-lg text-green-800">{{ item.correct_answer }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="mt-10 text-center">
+    <a href="{% url 'dashboard_student' %}" class="inline-block bg-blue-900 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-800 transition">
+        Return to Dashboard
+    </a>
+</div>
+    </div>
+</div>
+{% endblock %}

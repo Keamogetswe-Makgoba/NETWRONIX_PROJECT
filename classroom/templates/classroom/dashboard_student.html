@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Netwronix | Grade {{ grade }} Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .bg-custom-blue {
+        background-color: #1e3a8a;
+      }
+      .bg-custom-yellow {
+        background-color: #facc15;
+      }
+      @keyframes pulse-red {
+        0%,
+        100% {
+          border-color: #dc2626;
+          box-shadow: 0 0 0 0px rgba(220, 38, 38, 0.4);
+        }
+        50% {
+          border-color: #ef4444;
+          box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+        }
+      }
+      .animate-live {
+        animation: pulse-red 2s infinite;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 min-h-screen">
+    <nav
+      class="bg-custom-blue p-4 text-white flex justify-between items-center shadow-lg"
+    >
+      <h1
+        class="text-2xl font-bold text-custom-yellow uppercase tracking-tighter"
+      >
+        Netwronix Portal
+      </h1>
+
+      <div class="flex items-center space-x-4 md:space-x-8">
+        <div class="flex flex-col items-end">
+          <p class="text-sm font-medium">
+            {{ user.username }}
+            <span class="text-custom-yellow text-xs">(Grade {{ grade }})</span>
+          </p>
+          <a
+            href="{% url 'change_password' %}"
+            class="text-[10px] uppercase tracking-widest text-blue-300 hover:text-white transition-colors duration-200 mt-1"
+          >
+            🔑 Reset Password
+          </a>
+        </div>
+
+        <a
+          href="{% url 'logout' %}"
+          class="bg-red-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-700 transition shadow-md"
+        >
+          LOGOUT
+        </a>
+      </div>
+    </nav>
+
+    <main class="container mx-auto py-10 px-6">
+      <div class="mb-8">
+        <h2 class="text-3xl font-extrabold text-blue-900">Welcome Back!</h2>
+        <p class="text-gray-600 italic">
+          "Physics is the only real science. The rest is just stamp collecting."
+        </p>
+      </div>
+
+      {% if messages %} {% for message in messages %}
+      <div
+        class="mb-6 p-4 rounded-lg bg-green-100 text-green-700 border border-green-400"
+      >
+        {{ message }}
+      </div>
+      {% endfor %} {% endif %}
+
+      <div class="mb-12">
+        <h3
+          class="text-xs font-black text-blue-900 mb-4 uppercase tracking-[0.2em] border-l-4 border-yellow-400 pl-3"
+        >
+          Active Learning Modules
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {% if grade == '11' %}
+          <div
+            class="bg-blue-100 p-5 rounded-xl border border-blue-200 shadow-sm"
+          >
+            <p class="text-blue-900 font-bold flex items-center">
+              <span class="mr-2">📐</span> Vectors
+            </p>
+          </div>
+          <div
+            class="bg-blue-100 p-5 rounded-xl border border-blue-200 shadow-sm"
+          >
+            <p class="text-blue-900 font-bold flex items-center">
+              <span class="mr-2">🏎️</span> Newton's Laws
+            </p>
+          </div>
+          <div
+            class="bg-blue-100 p-5 rounded-xl border border-blue-200 shadow-sm"
+          >
+            <p class="text-blue-900 font-bold flex items-center">
+              <span class="mr-2">🌍</span> Gravitation
+            </p>
+          </div>
+          <div
+            class="bg-blue-100 p-5 rounded-xl border border-blue-200 shadow-sm"
+          >
+            <p class="text-blue-900 font-bold flex items-center">
+              <span class="mr-2">⚡</span> Coulomb's Law
+            </p>
+          </div>
+          {% elif grade == '12' %}
+          <div
+            class="bg-purple-100 p-5 rounded-xl border border-purple-200 shadow-sm"
+          >
+            <p class="text-purple-900 font-bold flex items-center">
+              <span class="mr-2">🏀</span> Projectile Motion
+            </p>
+          </div>
+          <div
+            class="bg-purple-100 p-5 rounded-xl border border-purple-200 shadow-sm"
+          >
+            <p class="text-purple-900 font-bold flex items-center">
+              <span class="mr-2">💥</span> Momentum
+            </p>
+          </div>
+          <div
+            class="bg-purple-100 p-5 rounded-xl border border-purple-200 shadow-sm"
+          >
+            <p class="text-purple-900 font-bold flex items-center">
+              <span class="mr-2">🧪</span> Organic Chem
+            </p>
+          </div>
+          <div
+            class="bg-gray-100 p-5 rounded-xl border border-gray-200 shadow-sm italic text-gray-500 font-medium"
+          >
+            More coming soon...
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <hr class="mb-10 border-gray-200" />
+
+      <h3
+        class="text-xs font-black text-gray-500 mb-6 uppercase tracking-[0.2em]"
+      >
+        Quick Access
+      </h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <a
+          href="/more-materials/{{ grade }}/"
+          class="bg-white p-8 rounded-2xl shadow-md border-t-4 border-blue-600 hover:shadow-xl transition transform hover:-translate-y-1"
+        >
+          <div class="text-4xl mb-4">📚</div>
+          <h3 class="font-bold text-gray-800 text-lg">Materials</h3>
+          <p class="text-xs text-gray-500 mt-2">PDFs, notes, and extra work.</p>
+        </a>
+
+        {% if active_classes %} {% for session in active_classes %}
+        <a
+          href="{% url 'join_class' session.meeting_id %}"
+          class="bg-white p-8 rounded-2xl shadow-md border-t-4 border-red-600 hover:shadow-xl transition transform hover:-translate-y-1 animate-live"
+        >
+          <div class="flex justify-between items-start mb-4">
+            <div class="text-4xl">📹</div>
+            <span
+              class="bg-red-600 text-white text-[10px] px-2 py-1 rounded-full font-bold animate-pulse uppercase"
+              >Live Now</span
+            >
+          </div>
+          <h3 class="font-bold text-gray-800 text-lg">{{ session.title }}</h3>
+          <p class="text-xs text-red-500 font-medium mt-2">
+            Join Teacher {{ session.teacher.username }}
+          </p>
+        </a>
+        {% endfor %} {% else %}
+        <div
+          class="bg-gray-100 p-8 rounded-2xl shadow-sm border-t-4 border-gray-400 opacity-60 cursor-not-allowed"
+        >
+          <div class="flex justify-between items-start mb-4">
+            <div class="text-4xl grayscale">📹</div>
+            <span
+              class="bg-gray-400 text-white text-[10px] px-2 py-1 rounded-full font-bold uppercase"
+              >Offline</span
+            >
+          </div>
+          <h3 class="font-bold text-gray-500 text-lg">Online Class</h3>
+          <p class="text-xs text-gray-400 mt-2 italic">
+            No active sessions at the moment.
+          </p>
+        </div>
+        {% endif %}
+
+        <a
+          href="{% url 'quiz_view' grade=grade %}"
+          class="bg-white p-8 rounded-2xl shadow-md border-t-4 border-green-600 hover:shadow-xl transition transform hover:-translate-y-1"
+        >
+          <div class="text-4xl mb-4">✍️</div>
+          <h3 class="font-bold text-gray-800 text-lg">Quizzes</h3>
+          <p class="text-xs text-gray-500 mt-2">Test your knowledge.</p>
+        </a>
+
+        <a
+          href="{% url 'lab_selection' grade=grade %}"
+          class="bg-white p-8 rounded-2xl shadow-md border-t-4 border-purple-600 hover:shadow-xl transition transform hover:-translate-y-1"
+        >
+          <div class="text-4xl mb-4">🧪</div>
+          <h3 class="font-bold text-gray-800 text-lg">Simulations</h3>
+          <p class="text-xs text-gray-500 mt-2">Interactive labs and tools.</p>
+        </a>
+      </div>
+    </main>
+  </body>
+</html>

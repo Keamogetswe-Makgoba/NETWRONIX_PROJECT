@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netwronix | Physics Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .bg-custom-blue { background-color: #1e3a8a; }
+        .text-custom-yellow { color: #facc15; }
+        .border-custom-blue { border-color: #1e3a8a; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+    <nav class="bg-custom-blue p-4 text-white flex justify-between items-center shadow-md">
+        <h1 class="text-xl font-bold text-custom-yellow tracking-tighter">VIRTUAL PHYSICS LAB</h1>
+        <a href="{% url 'lab_selection' grade=grade %}" class="text-sm font-bold bg-blue-800 px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+            ← BACK TO MENU
+        </a>
+    </nav>
+
+    <main class="flex-grow container mx-auto py-8 px-4 flex flex-col items-center">
+        
+        <div class="w-full max-w-5xl mb-6 text-center">
+            <h2 class="text-4xl font-black text-blue-900 uppercase">{{ sim.title }}</h2>
+            <p class="text-gray-500 font-medium">Grade {{ grade }} Science Module</p>
+        </div>
+
+        <div class="w-full max-w-5xl bg-white rounded-3xl shadow-2xl border-4 border-custom-blue overflow-hidden relative" style="height: 650px;">
+            {% if sim.url %}
+                <iframe 
+                    src="{{ sim.url }}" 
+                    class="absolute inset-0 w-full h-full"
+                    allowfullscreen 
+                    scrolling="no" 
+                    style="border: none;">
+                </iframe>
+            {% else %}
+                <div class="flex flex-col items-center justify-center h-full p-10">
+                    <span class="text-6xl mb-4">⚠️</span>
+                    <p class="text-xl font-bold text-gray-400">Simulation not found for "{{ topic }}"</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="w-full max-w-5xl mt-8 bg-white p-6 rounded-2xl border-l-8 border-custom-blue shadow-sm">
+            <h4 class="font-bold text-blue-900 mb-2 flex items-center">
+                <span class="mr-2">💡</span> Lab Instructions:
+            </h4>
+            <p class="text-gray-700 text-md leading-relaxed">
+                {{ sim.desc }} Use the on-screen controls to interact with the experiment. 
+                Observe the variables and record any changes in your lab notebook for your Grade {{ grade }} portfolio.
+            </p>
+        </div>
+    </main>
+
+</body>
+</html>

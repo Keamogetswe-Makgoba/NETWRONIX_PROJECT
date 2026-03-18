@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Netwronix | Manage Students</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+
+    <nav class="bg-blue-900 p-4 text-white flex justify-between items-center shadow-lg">
+        <h1 class="text-xl font-bold text-yellow-400">Student Directory</h1>
+        <a href="/teacher-dashboard/" class="bg-yellow-500 text-blue-900 px-4 py-2 rounded-lg font-bold text-sm hover:bg-yellow-400 transition">
+            ← BACK TO DASHBOARD
+        </a>
+    </nav>
+
+    <div class="container mx-auto py-10 px-6">
+        <div class="bg-white shadow-xl rounded-2xl overflow-hidden">
+            <div class="p-6 bg-gray-100 border-b flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-bold text-blue-900">Student Management</h2>
+                    <p class="text-sm text-gray-600">Control access for all registered Grade 11 and 12 students.</p>
+                </div>
+            </div>
+
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-blue-50 text-blue-900 border-b">
+                        <th class="p-4 font-bold">Name</th>
+                        <th class="p-4 font-bold text-center">Grade</th>
+                        <th class="p-4 font-bold text-center">Current Status</th>
+                        <th class="p-4 font-bold text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr class="border-b hover:bg-gray-50 transition">
+                        <td class="p-4">
+                            <p class="font-bold text-blue-900">{{ student.username }}</p>
+                            <p class="text-xs text-gray-500">{{ student.email }}</p>
+                        </td>
+                        <td class="p-4 text-center uppercase text-xs font-black text-gray-400">{{ student.role }}</td>
+                        
+                        <td class="p-4 text-center">
+                            {% if student.is_verified %}
+                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold italic">Active</span>
+                            {% else %}
+                                <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold italic">Deactivated</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="p-4 text-center">
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="student_id" value="{{ student.id }}">
+                                
+                                {% if student.is_verified %}
+                                    <button name="action" value="deactivate" class="bg-red-500 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-600 transition text-xs w-32">
+                                        DEACTIVATE
+                                    </button>
+                                {% else %}
+                                    <button name="action" value="activate" class="bg-green-500 text-white px-4 py-2 rounded-lg font-bold hover:bg-green-600 transition text-xs w-32">
+                                        REACTIVATE
+                                    </button>
+                                {% endif %}
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="p-10 text-center text-gray-500">
+                            No students found in the database.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

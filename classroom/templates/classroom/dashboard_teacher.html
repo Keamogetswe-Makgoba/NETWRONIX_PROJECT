@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Netwronix | Teacher Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .bg-custom-blue {
+        background-color: #1e3a8a;
+      }
+      .bg-custom-yellow {
+        background-color: #facc15;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50">
+    <nav
+      class="bg-custom-blue p-4 text-white flex justify-between items-center shadow-lg"
+    >
+      <h1 class="text-2xl font-bold text-custom-yellow">Hello Teacher</h1>
+
+      <div class="flex items-center space-x-6">
+        <button
+          onclick="openModal()"
+          class="bg-yellow-500 text-blue-900 px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-400 transition shadow-md"
+        >
+          🔄 Switch Grade
+        </button>
+
+        <div
+          class="flex flex-col items-end border-l border-blue-400 pl-6 space-y-1"
+        >
+          <span class="text-xs opacity-80">Logged in: {{ user.email }}</span>
+          <div class="flex space-x-3">
+            <a
+              href="/change-password/"
+              class="text-xs text-orange-300 hover:text-orange-200 font-semibold flex items-center transition"
+            >
+              <span class="mr-1">🔑</span> Reset Password
+            </a>
+            <a
+              href="/logout/"
+              class="text-xs bg-red-600 px-2 py-1 rounded hover:bg-red-700 font-bold transition"
+            >
+              LOGOUT
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mx-auto py-10 px-6">
+      <h2 class="text-3xl font-bold text-gray-800 mb-6">Control Center</h2>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <a
+          href="/verify-students/"
+          class="p-6 bg-white shadow rounded-xl border-l-4 border-blue-600 hover:bg-blue-50 block transition"
+        >
+          <p class="text-3xl mb-2">✅</p>
+          <h3 class="font-bold text-gray-800">Verify Students</h3>
+          <p class="text-xs text-gray-500">Approve/Decline Registrations</p>
+        </a>
+
+        <a
+          href="/manage-quizzes/"
+          class="p-6 bg-white shadow rounded-xl border-l-4 border-purple-600 hover:bg-purple-50 block transition"
+        >
+          <p class="text-3xl mb-2">📝</p>
+          <h3 class="font-bold text-gray-800">Quiz Management</h3>
+          <p class="text-xs text-gray-500">Add or edit Physics questions</p>
+        </a>
+
+        <a
+          href="/student-results/"
+          class="p-6 bg-white shadow rounded-xl border-l-4 border-indigo-600 hover:bg-indigo-50 block transition"
+        >
+          <p class="text-3xl mb-2">📊</p>
+          <h3 class="font-bold text-gray-800">Student Results</h3>
+          <p class="text-xs text-gray-500">View scores and performance</p>
+        </a>
+
+        <a
+          href="/manage-students/"
+          class="p-6 bg-white shadow rounded-xl border-l-4 border-red-600 hover:bg-red-50 block transition text-left"
+        >
+          <p class="text-3xl mb-2">👥</p>
+          <h3 class="font-bold text-gray-800">Manage Students</h3>
+          <p class="text-xs text-gray-500">View and Deactivate Accounts</p>
+        </a>
+
+        <a
+          href="/additional-work/"
+          class="p-6 bg-white shadow rounded-xl border-l-4 border-yellow-500 hover:bg-yellow-50 block transition text-left group"
+        >
+          <p class="text-3xl mb-2">🔗</p>
+          <h3 class="font-bold text-gray-800 group-hover:text-yellow-600">
+            Additional Work
+          </h3>
+          <p class="text-xs text-gray-500">Manage external links</p>
+        </a>
+
+        <a
+          href="{% url 'create_live_class' %}"
+          class="p-6 bg-white shadow rounded-xl border-l-4 border-green-600 hover:bg-green-50 text-left transition block"
+        >
+          <p class="text-3xl mb-2">🎥</p>
+          <h3 class="font-bold text-gray-800">Online Class</h3>
+          <p class="text-xs text-gray-500">Start a virtual session</p>
+        </a>
+      </div>
+    </div>
+
+    <div
+      id="gradeModal"
+      class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden"
+    >
+      <div
+        class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full border-t-8 border-custom-yellow"
+      >
+        <h2 class="text-2xl font-bold text-blue-900 mb-4">Class Management</h2>
+        <p class="text-gray-600 mb-8">
+          Which class would you like to manage today?
+        </p>
+        <div class="space-y-4">
+          <button
+            onclick="closeModal('Grade 11')"
+            class="w-full bg-custom-blue text-white py-3 rounded-lg font-bold hover:bg-blue-800"
+          >
+            Grade 11 Class
+          </button>
+          <button
+            onclick="closeModal('Grade 12')"
+            class="w-full bg-custom-yellow text-blue-900 py-3 rounded-lg font-bold hover:bg-yellow-500"
+          >
+            Grade 12 Class
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.onload = function () {
+        if (!sessionStorage.getItem("grade_selected")) {
+          openModal();
+        }
+      };
+
+      function openModal() {
+        document.getElementById("gradeModal").classList.remove("hidden");
+      }
+
+      function closeModal(grade) {
+        if (grade) {
+          sessionStorage.setItem("grade_selected", "true");
+          console.log("Switched to " + grade);
+        }
+        document.getElementById("gradeModal").classList.add("hidden");
+      }
+    </script>
+  </body>
+</html>

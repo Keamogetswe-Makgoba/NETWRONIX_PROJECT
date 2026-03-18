@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netwronix | Grade {{ grade }} Materials</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <nav class="bg-blue-900 p-4 text-white shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold uppercase tracking-tight">Grade {{ grade }} Resources</h1>
+            <a href="{% url 'dashboard_student' %}" class="...">
+    ← Back to Dashboard
+</a>
+        </div>
+    </nav>
+
+    <main class="container mx-auto py-12 px-6">
+        <div class="max-w-4xl mx-auto">
+            <div class="mb-10 text-center">
+                <h2 class="text-3xl font-extrabold text-blue-900 mb-2">Additional Work & Notes</h2>
+                <p class="text-gray-600">Download or view the extra materials posted by your teacher.</p>
+            </div>
+
+            <div class="space-y-4">
+                {% for resource in resources %}
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col md:flex-row justify-between items-center hover:shadow-md transition">
+                    <div class="mb-4 md:mb-0">
+                        <span class="text-xs font-bold text-blue-600 uppercase tracking-widest">Physics Resource</span>
+                        <h3 class="text-xl font-bold text-gray-800">{{ resource.title }}</h3>
+                        <p class="text-xs text-gray-400 mt-1">Posted on: {{ resource.date_posted|date:"d M Y" }}</p>
+                    </div>
+                    
+                    <a href="{{ resource.link }}" target="_blank" 
+                       class="w-full md:w-auto text-center bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition">
+                        View Resource ↗
+                    </a>
+                </div>
+                {% empty %}
+                <div class="bg-white rounded-3xl p-16 text-center shadow-inner border-2 border-dashed border-gray-200">
+                    <div class="text-6xl mb-4">📂</div>
+                    <p class="text-gray-500 font-medium">No materials have been uploaded for Grade {{ grade }} yet.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

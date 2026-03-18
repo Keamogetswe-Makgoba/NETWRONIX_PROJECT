@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netwronix | Additional Work</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+
+    <nav class="bg-blue-900 p-4 text-white flex justify-between items-center shadow-lg">
+        <h1 class="text-xl font-bold text-yellow-400">Resource Management</h1>
+        <a href="/teacher-dashboard/" class="bg-yellow-500 text-blue-900 px-4 py-2 rounded-lg font-bold text-sm hover:bg-yellow-400 transition">← BACK</a>
+    </nav>
+
+    <div class="container mx-auto py-10 px-6 grid lg:grid-cols-3 gap-8">
+        
+        <div class="bg-white p-6 rounded-2xl shadow-lg border-t-4 border-yellow-500 h-fit">
+            <h2 class="text-xl font-bold text-blue-900 mb-4">Post New Material</h2>
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase">Resource Title</label>
+                    <input type="text" name="title" placeholder="e.g. Newton's Laws PDF" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase">URL Link</label>
+                    <input type="url" name="link" placeholder="https://youtube.com/..." class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase">Target Grade</label>
+                    <select name="grade" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="11">Grade 11</option>
+                        <option value="12">Grade 12</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-blue-900 text-white py-3 rounded-lg font-bold hover:bg-blue-800 transition shadow-md">POST RESOURCE</button>
+            </form>
+        </div>
+
+        <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+            <table class="w-full text-left">
+                <thead class="bg-blue-50 border-b border-gray-200">
+                    <tr>
+                        <th class="p-4 text-blue-900 font-bold">Grade</th>
+                        <th class="p-4 text-blue-900 font-bold">Material Title</th>
+                        <th class="p-4 text-blue-900 font-bold">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for work in works %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-4">
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-black">
+                                Grade {{ work.grade }}
+                            </span>
+                        </td>
+                        <td class="p-4">
+                            <p class="font-medium text-gray-800">{{ work.title }}</p>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex items-center space-x-4">
+                                <a href="{{ work.link }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm font-bold flex items-center">
+                                    View ↗
+                                </a>
+
+                                <form action="{% url 'delete_additional_work' work.id %}" method="POST" onsubmit="return confirm('Permanently delete this resource?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-red-500 hover:text-red-700 text-sm font-bold transition">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="p-10 text-center text-gray-400 italic">
+                            No materials posted yet. Use the form on the left to start.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>
