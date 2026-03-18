@@ -29,6 +29,19 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+STATIC_URL = '/static/'
+
+# This is the folder where Django will "collect" files on Render
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# This is where your custom CSS/JS currently lives in your project
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+# 3. Enable compression and caching (Standard for Render)
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 ROOT_URLCONF = 'netwronix_core.urls'
 
 TEMPLATES = [
