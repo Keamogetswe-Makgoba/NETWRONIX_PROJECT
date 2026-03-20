@@ -57,7 +57,6 @@ def student_register(request, grade):
         role = request.POST.get('role')
 
         try:
-            # 1. Create User (Database logic)
             user = User.objects.create_user(
                 username=username, 
                 email=email, 
@@ -67,23 +66,31 @@ def student_register(request, grade):
             user.is_verified = False 
             user.save()
 
-            # 2. Email logic moved to a function
-            subject = f"New Student Registration: Grade {grade}"
-            message = f"Hello Teacher,\n\n{username} has registered for Grade {grade}."
-            from_email = settings.EMAIL_HOST_USER
-            teacher_email = 'vaaltein.t@gmail.com'
-
-            # Define a quick function to send the mail
-            def send_async_mail():
+            
+            def send_async_mail(subject, message, recipient):
                 try:
-                    send_mail(subject, message, from_email, [teacher_email])
+                    send_mail(
+                        subject,
+                        message,
+                        settings.EMAIL_HOST_USER,
+                        [recipient],
+                        fail_silently=False, 
+                    )
                 except Exception as e:
-                    print(f"Background email error: {e}")
+                    print(f"SMTP ERROR: {e}")
 
-            # 3. Start the thread (This won't make the user wait)
-            threading.Thread(target=send_async_mail).start()
+           
+            subj = f"New Student: {username}"
+            msg = f"{username} registered for Grade {grade}."
+            
+           
+            thread = threading.Thread(
+                target=send_async_mail, 
+                args=(subj, msg, 'vaaltein.t@gmail.com')
+            )
+            thread.start()
 
-            # 4. Return immediately to avoid 502 Timeout
+            
             return render(request, 'portal/student_register.html', {
                 'grade': grade,
                 'registration_success': True,
@@ -98,9 +105,6 @@ def student_register(request, grade):
     
     return render(request, 'portal/student_register.html', {'grade': grade})
 
-import threading
-from django.core.mail import send_mail
-
 def verify_students(request):
     pending_students = User.objects.filter(is_verified=False).exclude(role='teacher')
     
@@ -109,7 +113,7 @@ def verify_students(request):
         action = request.POST.get('action')
         student = User.objects.get(id=student_id)
 
-        # Prepare email data based on action
+        
         if action == "approve":
             student.is_verified = True
             student.save()
@@ -124,7 +128,7 @@ def verify_students(request):
             subject = "Netwronix | Registration Declined"
             message = f"Hi {student_name},\n\nUnfortunately, your registration request was not approved."
         
-        # Background Email Function
+        
         def send_async_verification_email():
             try:
                 send_mail(
@@ -137,7 +141,7 @@ def verify_students(request):
             except Exception as e:
                 print(f"Background verification email error: {e}")
 
-        # Start the thread and redirect immediately
+       
         threading.Thread(target=send_async_verification_email).start()
         return redirect('verify_students')
 
