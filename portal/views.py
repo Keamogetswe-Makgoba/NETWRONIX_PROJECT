@@ -17,6 +17,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 import uuid
+from django.db import IntegrityError
 
 def welcome_page(view):
     return render(view, 'portal/welcome.html')
@@ -54,29 +55,40 @@ def student_register(request, grade):
         password = request.POST.get('password')
         role = request.POST.get('role')
 
-       
-        user = User.objects.create_user(username=username, email=email, password=password, role=role)
-        user.is_verified = False 
-        user.save()
-
-       
-        subject = f"New Student Registration: Grade {grade}"
-        message = f"Hello Teacher,\n\n{username} has registered for Grade {grade}."
-        from_email = settings.EMAIL_HOST_USER
-        teacher_email = 'vaaltein.t@gmail.com'
-
         try:
-            send_mail(subject, message, from_email, [teacher_email])
-        except Exception as e:
-            print(f"Error sending email: {e}")
+            user = User.objects.create_user(
+                username=username, 
+                email=email, 
+                password=password, 
+                role=role
+            )
+            user.is_verified = False 
+            user.save()
 
-        
-        return render(request, 'portal/student_register.html', {
-            'grade': grade,
-            'registration_success': True,
-            'username': username
-        })
-    
+          
+            subject = f"New Student Registration: Grade {grade}"
+            message = f"Hello Teacher,\n\n{username} has registered for Grade {grade}."
+            from_email = settings.EMAIL_HOST_USER
+            teacher_email = 'vaaltein.t@gmail.com'
+
+            try:
+                send_mail(subject, message, from_email, [teacher_email])
+            except Exception as e:
+                print(f"Error sending email: {e}")
+
+            
+            return render(request, 'portal/student_register.html', {
+                'grade': grade,
+                'registration_success': True,
+                'username': username
+            })
+
+        except IntegrityError:
+            messages.error(request, f"The username '{username}' is already taken. Please try another.")
+            return render(request, 'portal/student_register.html', {
+                'grade': grade,
+                'registration_error': True
+            })
     
     return render(request, 'portal/student_register.html', {'grade': grade})
 
