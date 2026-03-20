@@ -1,4 +1,5 @@
 import json
+import threading
 from django.shortcuts import render
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
@@ -56,6 +57,7 @@ def student_register(request, grade):
         role = request.POST.get('role')
 
         try:
+            # 1. Create User (Database logic)
             user = User.objects.create_user(
                 username=username, 
                 email=email, 
@@ -65,18 +67,23 @@ def student_register(request, grade):
             user.is_verified = False 
             user.save()
 
-          
+            # 2. Email logic moved to a function
             subject = f"New Student Registration: Grade {grade}"
             message = f"Hello Teacher,\n\n{username} has registered for Grade {grade}."
             from_email = settings.EMAIL_HOST_USER
             teacher_email = 'vaaltein.t@gmail.com'
 
-            try:
-                send_mail(subject, message, from_email, [teacher_email])
-            except Exception as e:
-                print(f"Error sending email: {e}")
+            # Define a quick function to send the mail
+            def send_async_mail():
+                try:
+                    send_mail(subject, message, from_email, [teacher_email])
+                except Exception as e:
+                    print(f"Background email error: {e}")
 
-            
+            # 3. Start the thread (This won't make the user wait)
+            threading.Thread(target=send_async_mail).start()
+
+            # 4. Return immediately to avoid 502 Timeout
             return render(request, 'portal/student_register.html', {
                 'grade': grade,
                 'registration_success': True,
@@ -84,14 +91,12 @@ def student_register(request, grade):
             })
 
         except IntegrityError:
-            messages.error(request, f"The username '{username}' is already taken. Please try another.")
             return render(request, 'portal/student_register.html', {
                 'grade': grade,
                 'registration_error': True
             })
     
     return render(request, 'portal/student_register.html', {'grade': grade})
-
 def verify_students(request):
     
     pending_students = User.objects.filter(is_verified=False).exclude(role='teacher')
