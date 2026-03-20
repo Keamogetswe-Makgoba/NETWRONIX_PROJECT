@@ -12,6 +12,7 @@ from django.db.models import Avg, Count
 from django.contrib.auth.decorators import login_required
 from decimal import Decimal
 from classroom.models import LiveClass
+from .models import LiveClass 
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
@@ -445,9 +446,8 @@ def change_password(request):
         form = PasswordChangeForm(request.user)
     return render(request, 'portal/change_password_internal.html', {'form': form})
 
-import uuid
-from django.shortcuts import render, redirect
-from .models import LiveClass # Assuming your model is named LiveClass
+
+
 
 
 def create_live_class(request):
@@ -455,11 +455,11 @@ def create_live_class(request):
         title = request.POST.get('title')
         grade = request.POST.get('grade')
         
-        # Generate a unique ID for Jitsi
+        
         unique_id = uuid.uuid4().hex[:10]
         meeting_id = f"{title}_{grade}_{unique_id}".replace(" ", "_")
         
-        # Create the record in your database
+        
         LiveClass.objects.create(
             title=title,
             grade=grade,
@@ -467,22 +467,22 @@ def create_live_class(request):
             teacher=request.user
         )
         
-        # Redirect the teacher straight into the new room
+        
         return redirect('join_class', meeting_id=meeting_id)
     
-    # If GET, show the form to create a class
+    
     return render(request, 'classroom/create_live_class.html')
 
 @login_required
 def end_live_class(request, meeting_id):
     if request.user.role == 'teacher':
-        # Using filter().delete() is safer to avoid 404s during rapid testing
+        
         live_class = LiveClass.objects.filter(meeting_id=meeting_id, teacher=request.user)
         if live_class.exists():
             live_class.delete()
             messages.success(request, "Online class.")
         
-        # CHANGE THIS LINE: from 'dashboard_teacher' to 'teacher_dashboard'
+        
         return redirect('teacher_dashboard') 
     
     return redirect('dashboard_student')
