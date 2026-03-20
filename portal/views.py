@@ -97,8 +97,11 @@ def student_register(request, grade):
             })
     
     return render(request, 'portal/student_register.html', {'grade': grade})
+
+import threading
+from django.core.mail import send_mail
+
 def verify_students(request):
-    
     pending_students = User.objects.filter(is_verified=False).exclude(role='teacher')
     
     if request.method == "POST":
@@ -106,39 +109,36 @@ def verify_students(request):
         action = request.POST.get('action')
         student = User.objects.get(id=student_id)
 
+        # Prepare email data based on action
         if action == "approve":
             student.is_verified = True
             student.save()
-            
-            
-            try:
-                send_mail(
-                    subject="Netwronix | Account Verified!",
-                    message=f"Hi {student.username},\n\nYour account for Grade {student.role} has been verified by your teacher. You can now log in and access your Physics materials.\n\nLogin here: http://127.0.0.1:8000/login/student/",
-                    from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[student.email],
-                    fail_silently=False,
-                )
-            except Exception as e:
-                print(f"Error sending approval email: {e}")
-
+            subject = "Netwronix | Account Verified!"
+            message = (f"Hi {student.username},\n\nYour account for Grade {student.role} has been verified. "
+                       f"You can now log in.\n\nLogin here: https://netwronix-project-u3vs.onrender.com/login/student/")
+            recipient = student.email
         elif action == "decline":
-            student_email = student.email 
+            recipient = student.email
             student_name = student.username
             student.delete()
-            
-            
+            subject = "Netwronix | Registration Declined"
+            message = f"Hi {student_name},\n\nUnfortunately, your registration request was not approved."
+        
+        # Background Email Function
+        def send_async_verification_email():
             try:
                 send_mail(
-                    subject="Netwronix | Registration Declined",
-                    message=f"Hi {student_name},\n\nUnfortunately, your registration request for Netwronix was not approved. If you believe this is a mistake, please contact your teacher directly.",
+                    subject=subject,
+                    message=message,
                     from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[student_email],
+                    recipient_list=[recipient],
                     fail_silently=False,
                 )
             except Exception as e:
-                print(f"Error sending decline email: {e}")
-            
+                print(f"Background verification email error: {e}")
+
+        # Start the thread and redirect immediately
+        threading.Thread(target=send_async_verification_email).start()
         return redirect('verify_students')
 
     return render(request, 'classroom/verify_students.html', {'students': pending_students})
