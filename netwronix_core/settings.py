@@ -11,7 +11,6 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-netwronix-key-123')
 
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
@@ -61,14 +60,26 @@ TEMPLATES = [
 WSGI_APPLICATION = 'netwronix_core.wsgi.application'
 
 
-if os.environ.get('DATABASE_URL'):
+database_url = os.environ.get('DATABASE_URL')
+
+if database_url:
+
+    if 'ssl-mode' in database_url:
+        database_url = database_url.replace('ssl-mode', 'ssl_mode')
+
     DATABASES = {
         'default': dj_database_url.config(
+            default=database_url,
             conn_max_age=600,
             conn_health_checks=True,
-            ssl_require=True,
         )
     }
+   
+    DATABASES['default']['ENGINE'] = 'django.db.backends.mysql'
+    
+
+    DATABASES['default'].setdefault('OPTIONS', {})
+    DATABASES['default']['OPTIONS']['ssl'] = {'ca': None}
 else:
     DATABASES = {
         'default': {
@@ -100,7 +111,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-
 STORAGES = {
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
@@ -116,7 +126,6 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'vaaltein.t@gmail.com' 
-
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD', 'siugqqccbajeizrm') 
 
 
@@ -126,7 +135,6 @@ LOGIN_EXEMPT_URLS = [
     r'^reset/.*',
     r'^reset-password-complete/.*',
 ]
-
 
 if RENDER_EXTERNAL_HOSTNAME:
     CSRF_TRUSTED_ORIGINS = [f'https://{RENDER_EXTERNAL_HOSTNAME}']
