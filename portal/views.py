@@ -503,14 +503,8 @@ def create_live_class(request):
 @login_required
 def end_live_class(request, meeting_id):
     if request.user.role == 'teacher':
-        # 1. THE NUKE: Delete every single record in the LiveClass table
-        # This clears ghosts from all teachers and all grades.
+        # This clears the entire table for all grades and all teachers
         LiveClass.objects.all().delete()
-        
-        messages.success(request, "Database cleared: All live classes have been terminated.")
-        
-        # 2. Redirect to Teacher Dashboard
-        return redirect('teacher_dashboard') 
-    
-    # Students or unauthorized users get sent back
+        messages.success(request, "All live sessions have been closed successfully.")
+        return redirect('teacher_dashboard')
     return redirect('dashboard_student')
