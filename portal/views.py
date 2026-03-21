@@ -508,8 +508,11 @@ def end_live_class(request, meeting_id):
         if live_class.exists():
             live_class.delete()
             messages.success(request, "Online class.")
+
+        LiveClass.objects.filter(teacher=request.user).delete()
         
         
         return redirect('teacher_dashboard') 
     
+    messages.error(request, "You do not have permission to end this class.")
     return redirect('dashboard_student')
