@@ -23,6 +23,7 @@ urlpatterns = [
     path('join-class/<str:meeting_id>/', views.join_class, name='join_class'),
     path('end-live-class/<str:meeting_id>/', views.end_live_class, name='end_live_class'),
     path('create-live-class/', views.create_live_class, name='create_live_class'),
+    path('check-class/<str:meeting_id>/', views.check_class_exists, name='check_class_exists'),
 
     # Content & Materials
     path('additional-work/', views.additional_work, name='additional_work'),

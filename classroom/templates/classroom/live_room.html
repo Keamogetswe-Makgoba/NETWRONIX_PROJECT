@@ -14,7 +14,11 @@
       {% if request.user.role == 'teacher' %}
       <a
         href="{% url 'end_live_class' meeting_id=room_name %}"
-        onclick="return confirm('End class for everyone?');"
+        onclick="
+          return confirm(
+            'End class for everyone? This will delete the session.',
+          );
+        "
         class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-bold transition"
       >
         End Class
@@ -22,7 +26,7 @@
       {% else %}
       <a
         href="{% url 'dashboard_student' %}"
-        class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-bold transition"
+        class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-bold transition"
       >
         Leave Class
       </a>
@@ -39,11 +43,11 @@
 
 <script>
   const domain = "meet.jit.si";
-
   const isTeacher = "{{ request.user.role }}".toLowerCase() === "teacher";
+  const roomName = "{{ room_name }}";
 
   const options = {
-    roomName: "Netwronix_{{ room_name }}",
+    roomName: "Netwronix_" + roomName,
     width: "100%",
     height: "100%",
     parentNode: document.querySelector("#video-container"),
@@ -59,20 +63,11 @@
       TOOLBAR_BUTTONS: [
         "microphone",
         "camera",
-        "closedcaptions",
-        "desktop",
-        "fullscreen",
-        "fodeviceselection",
-        "hangup",
-        "profile",
         "chat",
-        "recording",
+        "desktop",
         "raisehand",
-        "videoquality",
-        "filmstrip",
         "tileview",
-        "mute-everyone",
-        "security",
+        "fullscreen",
       ],
       SHOW_JITSI_WATERMARK: false,
     },
@@ -87,5 +82,24 @@
       window.location.href = "{% url 'dashboard_student' %}";
     }
   });
+
+  if (!isTeacher) {
+    const checkInterval = setInterval(function () {
+      fetch(`/check-class-status/${roomName}/`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (!data.active) {
+            clearInterval(checkInterval);
+            alert(
+              "The teacher has ended the session. You will be redirected to the dashboard.",
+            );
+            window.location.href = "{% url 'dashboard_student' %}";
+          }
+        })
+        .catch((error) => {
+          console.error("Error checking class status:", error);
+        });
+    }, 5000);
+  }
 </script>
 {% endblock %}

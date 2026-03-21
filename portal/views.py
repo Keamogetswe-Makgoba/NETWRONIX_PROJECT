@@ -19,6 +19,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 import uuid
 from django.db import IntegrityError
+from django.http import JsonResponse
 
 def welcome_page(view):
     return render(view, 'portal/welcome.html')
@@ -452,7 +453,12 @@ def join_class(request, meeting_id):
         'live_class': live_class,
         'room_name': live_class.meeting_id,
         'user_name': request.user.get_full_name() or request.user.username
+        
     })
+
+def check_class_exists(request, meeting_id):
+    exists = LiveClass.objects.filter(meeting_id=meeting_id).exists()
+    return JsonResponse({'active': exists})
 
 @login_required
 def change_password(request):
