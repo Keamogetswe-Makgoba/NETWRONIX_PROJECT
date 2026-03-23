@@ -503,7 +503,7 @@ def create_live_class(request):
 @login_required
 def end_live_class(request, meeting_id):
     if request.user.role == 'teacher':
-        # This clears the entire table for all grades and all teachers
+
         LiveClass.objects.all().delete()
         messages.success(request, "Live classes have ended.")
         return redirect('teacher_dashboard')

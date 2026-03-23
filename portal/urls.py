@@ -41,10 +41,7 @@ urlpatterns = [
     path('clear-results/', views.clear_all_results, name='clear_results'),
 
     # Password Management (Internal & Reset)
-    path('change-password/', auth_views.PasswordChangeView.as_view(
-        template_name='classroom/change_password.html',
-        success_url='/'
-    ), name='change_password'),
+    path('change-password/', views.change_password, name='change_password'),
     
     path('reset-password/', 
          auth_views.PasswordResetView.as_view(template_name='portal/password_reset.html'), 
