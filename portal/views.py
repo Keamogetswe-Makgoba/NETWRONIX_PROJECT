@@ -471,7 +471,7 @@ def change_password(request):
             return redirect('dashboard_student')
     else:
         form = PasswordChangeForm(request.user)
-    return render(request, 'portal/change_password_internal.html', {'form': form})
+    return render(request, 'portal/change_password.html', {'form': form})
 
 
 
