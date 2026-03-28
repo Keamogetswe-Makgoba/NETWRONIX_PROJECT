@@ -20,6 +20,13 @@ from django.contrib import messages
 import uuid
 from django.db import IntegrityError
 from django.http import JsonResponse
+import os
+import resend
+from classroom.models import QuizResult
+from django.db.models import Avg, Count
+import json
+
+resend.api_key = os.getenv("RESEND_API_KEY")
 
 def welcome_page(view):
     return render(view, 'portal/welcome.html')
@@ -67,42 +74,26 @@ def student_register(request, grade):
             user.is_verified = False 
             user.save()
 
-            
-            def send_async_mail(subject, message, recipient):
+            def send_resend_notification():
                 try:
-                    send_mail(
-                        subject,
-                        message,
-                        settings.EMAIL_HOST_USER,
-                        [recipient],
-                        fail_silently=False, 
-                    )
+                    resend.Emails.send({
+                        "from": "Netwronix <onboarding@resend.dev>",
+                        "to": ["vaaltein.t@gmail.com"], 
+                        "subject": f"Action Required: {username} Registered",
+                        "html": f"<p>Student <strong>{username}</strong> registered for Grade {grade}. Please verify them in the dashboard.</p>"
+                    })
+                    print(f"✅ Teacher alerted via Resend for {username}")
                 except Exception as e:
-                    print(f"SMTP ERROR: {e}")
+                    print(f"❌ Resend Teacher Alert Error: {e}")
 
-           
-            subj = f"New Student: {username}"
-            msg = f"{username} registered for Grade {grade}."
-            
-           
-            thread = threading.Thread(
-                target=send_async_mail, 
-                args=(subj, msg, 'vaaltein.t@gmail.com')
-            )
-            thread.start()
+            threading.Thread(target=send_resend_notification).start()
 
-            
             return render(request, 'portal/student_register.html', {
-                'grade': grade,
-                'registration_success': True,
-                'username': username
+                'grade': grade, 'registration_success': True, 'username': username
             })
 
         except IntegrityError:
-            return render(request, 'portal/student_register.html', {
-                'grade': grade,
-                'registration_error': True
-            })
+            return render(request, 'portal/student_register.html', {'grade': grade, 'registration_error': True})
     
     return render(request, 'portal/student_register.html', {'grade': grade})
 
@@ -114,36 +105,33 @@ def verify_students(request):
         action = request.POST.get('action')
         student = User.objects.get(id=student_id)
 
-        
         if action == "approve":
             student.is_verified = True
             student.save()
             subject = "Netwronix | Account Verified!"
-            message = (f"Hi {student.username},\n\nYour account for Grade {student.role} has been verified. "
-                       f"You can now log in.\n\nLogin here: https://netwronix-project-u3vs.onrender.com/login/student/")
-            recipient = student.email
+            message = f"Hi {student.username}, your account for Grade {student.role} has been verified. Log in here: https://netwronix-project-u3vs.onrender.com/login/student/"
         elif action == "decline":
-            recipient = student.email
             student_name = student.username
+            recipient = student.email
             student.delete()
             subject = "Netwronix | Registration Declined"
-            message = f"Hi {student_name},\n\nUnfortunately, your registration request was not approved."
+            message = f"Hi {student_name}, unfortunately, your registration request was not approved."
         
-        
-        def send_async_verification_email():
+      
+        def send_resend_verification():
             try:
-                send_mail(
-                    subject=subject,
-                    message=message,
-                    from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[recipient],
-                    fail_silently=False,
-                )
+                
+                resend.Emails.send({
+                    "from": "Netwronix <onboarding@resend.dev>",
+                    "to": [student.email if action == "approve" else recipient],
+                    "subject": subject,
+                    "html": f"<p>{message}</p>"
+                })
+                print(f"✅ Student notification sent via Resend")
             except Exception as e:
-                print(f"Background verification email error: {e}")
+                print(f"❌ Resend Student Notification Error: {e}")
 
-       
-        threading.Thread(target=send_async_verification_email).start()
+        threading.Thread(target=send_resend_verification).start()
         return redirect('verify_students')
 
     return render(request, 'classroom/verify_students.html', {'students': pending_students})
@@ -401,9 +389,7 @@ def view_results(request):
     if not hasattr(request.user, 'role') or request.user.role != 'teacher':
         return redirect('welcome')
         
-    from classroom.models import QuizResult
-    from django.db.models import Avg, Count
-    import json
+    
 
     
     results = QuizResult.objects.all().order_by('-date_taken')
