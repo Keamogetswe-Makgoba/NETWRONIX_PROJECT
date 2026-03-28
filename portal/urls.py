@@ -47,7 +47,7 @@ urlpatterns = [
 #          auth_views.PasswordResetView.as_view(template_name='portal/password_reset.html'), 
 #          name='password_reset'),
     path('reset-password/', 
-         auth_views.custom_password_reset, 
+         views.custom_password_reset, 
          name='password_reset'),
     path('reset-password-done/', 
          auth_views.PasswordResetDoneView.as_view(template_name='portal/password_reset_done.html'), 
