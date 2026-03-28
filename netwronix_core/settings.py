@@ -121,13 +121,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'portal.User'
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'vaaltein.t@gmail.com' 
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD', 'siugqqccbajeizrm') 
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD') 
 
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
