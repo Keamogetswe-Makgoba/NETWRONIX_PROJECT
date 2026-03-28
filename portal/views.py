@@ -24,14 +24,9 @@ import os
 import resend
 from classroom.models import QuizResult
 from django.db.models import Avg, Count
-from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
-from django.template.loader import render_to_string
 import json
 
 resend.api_key = os.getenv("RESEND_API_KEY")
-
 
 def welcome_page(view):
     return render(view, 'portal/welcome.html')
@@ -464,42 +459,8 @@ def change_password(request):
         form = PasswordChangeForm(request.user)
     return render(request, 'classroom/change_password.html', {'form': form})
 
-def custom_password_reset(request):
-    if request.method == "POST":
-        email = request.POST.get('email')
-        associated_users = User.objects.filter(email=email)
-        
-        if associated_users.exists():
-            for user in associated_users:
-                token = default_token_generator.make_token(user)
-                uid = urlsafe_base64_encode(force_bytes(user.pk))
-                
-                domain = "https://netwronix-project-u3vs.onrender.com"
-                reset_url = f"{domain}/reset/{uid}/{token}/"
-                
-                try:
-                    resend.Emails.send({
-                        "from": "Netwronix <onboarding@resend.dev>",
-                        "to": [email, "vaaltein.t@gmail.com"], # Added your test email here
-                        "subject": "Netwronix | Password Reset",
-                        "html": f"""
-                            <h3>Reset Your Password</h3>
-                            <p>Hi {user.username},</p>
-                            <p>Click the button below to reset your password:</p>
-                            <a href="{reset_url}" style="background-color: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reset Password</a>
-                            <p>If the button doesn't work, copy this link: {reset_url}</p>
-                        """
-                    })
-                    print(f"✅ Reset email sent to {email}")
-                except Exception as e:
-                    print(f"❌ Resend Error: {e}")
-            
-            messages.success(request, "A reset link has been sent to your email.")
-            return redirect('student_login')
-        else:
-            messages.error(request, "No account found with that email.")
-            
-    return render(request, 'portal/password_reset.html')
+
+
 
 
 def create_live_class(request):
